@@ -1,38 +1,58 @@
 package h1;
 
-import java.util.ArrayList;
-
 public class Grid {
-    ArrayList<ArrayList<Cell>> GridArray;
+    private Cell[][] gridArray;
 
-    Grid (Cell[] cells, int gridrows, int gridCols) {
-        GridArray = new ArrayList<ArrayList<Cell>>();
-        for (int i = 0; i < gridrows; i++) {
-            GridArray.add(new ArrayList<Cell>());
-            for (int j = 0; j < gridCols; j++) {
-                GridArray.get(i).add(new Cell(i, j, false));
+    public Grid(Cell[] cells, int gridRows, int gridCols) {
+        gridArray = new Cell[gridRows][gridCols];
+        for (int row = 0; row < gridRows; row++) {
+            for (int col = 0; col < gridCols; col++) {
+                gridArray[row][col] = new Cell(row, col);
             }
         }
+
         for (Cell c : cells) {
-            if (c.indexRow < gridrows && c.indexCol < gridCols) {
-                Cell cellToActivate = GridArray.get(c.indexRow).get(c.indexCol);
-                cellToActivate.alive = true;
+            if (c.getIndexRow() >= 0 && c.getIndexRow() < gridRows && c.getIndexCol() >= 0 && c.getIndexCol() < gridCols) {
+                gridArray[c.getIndexRow()][c.getIndexCol()].setAlive(true);
             }
         }
 
-        for (int i = 0; i < gridrows; i++) {
-            for (int j = 0; j < gridCols; j++) {
-                Cell currentCell = GridArray.get(i).get(j);
-                currentCell.countLivingNeighbors(this);
+        initializeNeighborData();
+    }
+
+    private void initializeNeighborData() {
+        for (int row = 0; row < gridArray.length; row++) {
+            for (int col = 0; col < gridArray[row].length; col++) {
+                gridArray[row][col].countLivingNeighbors(gridArray);
             }
         }
     }
 
-    public void compueteNextGeneration() {
+    public void computeNextGen() {
 
+
+        for (int row = 0; row < gridArray.length; row++) {
+            for (int col = 0; col < gridArray[row].length; col++) {
+                Cell cell = gridArray[row][col];
+                cell.setAlive(cell.isAliveNextGen());
+                cell.setNumLivingNeighbors(0);
+            }
+        }
+
+        initializeNeighborData();
     }
 
     public void computeGeneration(int n) {
+        for (int i = 0; i < n; i++) {
+            computeNextGen();
+        }
+    }
 
+    public Cell[][] getGridArray() {
+        return gridArray;
+    }
+
+    public void setGridArray(Cell[][] gridArray) {
+        this.gridArray = gridArray;
     }
 }
